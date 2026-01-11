@@ -3,4 +3,5 @@ python-dotenv
 flask
 werkzeug
 gunicorn
-httpx  # 添加这一行
+httpx
+typing_extensions  # 添加这一行
