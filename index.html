@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频生成工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #e8f0ff;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        #image-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: none;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .status-title {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .status-content {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .video-section {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .video-title {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            background-color: #fee;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            background-color: #efe;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 视频生成工具</h1>
+        <p class="description">输入提示词并上传一张图片，即可生成精彩视频</p>
+        
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+        
+        <form id="video-form">
+            <div class="form-group">
+                <label for="prompt">提示词</label>
+                <textarea id="prompt" name="prompt" placeholder="请输入视频生成的提示词，例如：女孩抱着狐狸，女孩睁开眼，温柔地看向镜头..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="image">上传图片</label>
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">点击或拖拽图片到此处上传</div>
+                    <div class="upload-hint">支持 PNG、JPG、JPEG、GIF 格式，最大 16MB</div>
+                    <input type="file" id="image" name="image" accept="image/*" style="display: none;">
+                </div>
+                <div id="image-preview">
+                    <img id="preview-img" src="" alt="预览图">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn" id="generate-btn">
+                <span id="btn-text">生成视频</span>
+                <span class="spinner hidden" id="btn-spinner"></span>
+            </button>
+        </form>
+        
+        <div class="status-section" id="status-section">
+            <div class="status-title">任务状态</div>
+            <div class="status-content" id="status-content">正在创建任务...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div class="video-section" id="video-section">
+            <div class="video-title">生成的视频</div>
+            <video id="generated-video" controls></video>
+        </div>
+    </div>
+    
+    <script>
+        // 表单和元素
+        const form = document.getElementById('video-form');
+        const uploadArea = document.getElementById('upload-area');
+        const imageInput = document.getElementById('image');
+        const previewImg = document.getElementById('preview-img');
+        const generateBtn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const statusSection = document.getElementById('status-section');
+        const statusContent = document.getElementById('status-content');
+        const progressFill = document.getElementById('progress-fill');
+        const videoSection = document.getElementById('video-section');
+        const generatedVideo = document.getElementById('generated-video');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+        
+        // 显示成功信息
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+        
+        // 清空消息
+        function clearMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+        
+        // 图片上传处理
+        uploadArea.addEventListener('click', () => {
+            imageInput.click();
+        });
+        
+        // 拖拽处理
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                imageInput.files = e.dataTransfer.files;
+                showImagePreview(imageInput.files[0]);
+            }
+        });
+        
+        // 显示图片预览
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                showImagePreview(e.target.files[0]);
+            }
+        });
+        
+        function showImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 表单提交处理
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            
+            // 验证表单
+            const prompt = document.getElementById('prompt').value.trim();
+            if (!prompt) {
+                showError('请输入提示词');
+                return;
+            }
+            
+            if (!imageInput.files || imageInput.files.length === 0) {
+                showError('请上传一张图片');
+                return;
+            }
+            
+            // 禁用按钮
+            generateBtn.disabled = true;
+            btnText.textContent = '生成中...';
+            btnSpinner.classList.remove('hidden');
+            
+            try {
+                // 构建FormData
+                const formData = new FormData(form);
+                
+                // 发送请求
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                // 显示状态区域
+                statusSection.style.display = 'block';
+                statusContent.textContent = '任务创建成功，正在生成视频...';
+                progressFill.style.width = '20%';
+                
+                // 开始轮询状态
+                pollTaskStatus(result.task_id);
+                
+            } catch (error) {
+                showError('生成失败：' + error.message);
+                resetButton();
+            }
+        });
+        
+        // 轮询任务状态
+        function pollTaskStatus(taskId) {
+            const maxAttempts = 60;
+            const interval = 5000; // 5秒
+            let attempts = 0;
+            
+            function checkStatus() {
+                attempts++;
+                
+                fetch(`/status/${taskId}`)
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.error) {
+                            throw new Error(result.error);
+                        }
+                        
+                        // 更新状态
+                        let statusText = '';
+                        let progress = 0;
+                        
+                        switch (result.status) {
+                            case 'queued':
+                                statusText = '任务排队中...';
+                                progress = 30;
+                                break;
+                            case 'running':
+                                statusText = '视频生成中...';
+                                progress = 50 + Math.min(30, (attempts / maxAttempts) * 30);
+                                break;
+                            case 'succeeded':
+                                statusText = '视频生成成功！';
+                                progress = 100;
+                                showVideo(result.video_url);
+                                resetButton();
+                                return;
+                            case 'failed':
+                                throw new Error('视频生成失败：' + result.failed_reason);
+                            default:
+                                statusText = `任务状态：${result.status}`;
+                        }
+                        
+                        statusContent.textContent = statusText;
+                        progressFill.style.width = progress + '%';
+                        
+                        // 继续轮询
+                        if (attempts < maxAttempts && result.status !== 'succeeded' && result.status !== 'failed') {
+                            setTimeout(checkStatus, interval);
+                        } else if (attempts >= maxAttempts) {
+                            showError('任务超时，请稍后重试');
+                            resetButton();
+                        }
+                    })
+                    .catch(error => {
+                        showError('获取状态失败：' + error.message);
+                        resetButton();
+                    });
+            }
+            
+            // 开始第一次检查
+            setTimeout(checkStatus, 2000);
+        }
+        
+        // 显示视频
+        function showVideo(videoUrl) {
+            generatedVideo.src = videoUrl;
+            videoSection.style.display = 'block';
+            showSuccess('视频生成成功！');
+            
+            // 更新状态区域为已完成
+            statusContent.textContent = '视频生成成功！';
+            progressFill.style.width = '100%';
+        }
+        
+        // 重置按钮
+        function resetButton() {
+            generateBtn.disabled = false;
+            btnText.textContent = '生成视频';
+            btnSpinner.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

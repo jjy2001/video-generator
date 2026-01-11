@@ -1,0 +1,4 @@
+volcengine-python-sdk
+python-dotenv
+flask
+werkzeug
