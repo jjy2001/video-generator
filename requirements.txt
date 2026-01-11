@@ -4,4 +4,5 @@ flask
 werkzeug
 gunicorn
 httpx
-typing_extensions  # 添加这一行
+typing_extensions
+pydantic  # 添加这一行
