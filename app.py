@@ -1,7 +1,6 @@
-# 修改 app.py，去掉本地文件存储
 import os
 import time
-import base64  # 添加base64导入
+import base64
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -22,17 +21,14 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 # 允许的上传文件类型
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-
 def allowed_file(filename):
     """检查文件类型是否允许"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 @app.route('/')
 def index():
     """首页路由"""
     return render_template('index.html')
-
 
 @app.route('/generate', methods=['POST'])
 def generate_video():
@@ -81,7 +77,6 @@ def generate_video():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/status/<task_id>')
 def get_status(task_id):
     """获取任务状态"""
@@ -103,6 +98,7 @@ def get_status(task_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # 使用PORT环境变量，兼容Render平台
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
